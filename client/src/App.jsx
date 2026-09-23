@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,10 +8,12 @@ import {
 import Login from "./pages/Login";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, loginSuccess } from "./store/authSlice";
-import Dashboard from './pages/Dashboard'
-import TradeForm from "./components/TradeForm";
+import Dashboard from "./pages/Dashboard";
+
 import AddTrade from "./pages/AddTrade";
 import ViewTrades from "./pages/ViewTrades";
+import API from "./api";
+import { setTrades } from "./store/tradesSlice";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -28,12 +30,15 @@ function App() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/auth/get-user", {
-          method: "GET",
-          headers : {
-            "x-auth-token" : token,
-          }
-        });
+        const response = await fetch(
+          "http://localhost:5000/api/auth/get-user",
+          {
+            method: "GET",
+            headers: {
+              "x-auth-token": token,
+            },
+          },
+        );
 
         if (response.ok) {
           const userData = await response.json();
@@ -52,6 +57,18 @@ function App() {
 
     verifyToken();
   }, [dispatch]);
+
+  useEffect(() => {
+    const fetchTrades = async () => {
+      try {
+        const response = await API.get("/trades");
+        dispatch(setTrades(response.data));
+      } catch (error) {
+        console.error("Error fetching trades:", error);
+      }
+    };
+    fetchTrades();
+  }, []);
 
   if (loading) {
     return (

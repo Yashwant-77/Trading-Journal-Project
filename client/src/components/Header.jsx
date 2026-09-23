@@ -40,45 +40,14 @@ function Header({ onNewTradeClick }) {
     };
   }, [isMenuOpen]);
   const navItems = [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Trades", href: "/view-trades" },
-    { label: "Analytics", href: "/analytics" },
-    { label: "Playbook", href: "/playbook" },
-    { label: "Calendar", href: "/calendar" },
+    { label: "Dashboard", description: "Get summary , analytics and insights of past trades", href: "/" },
+    { label: "Trades",description: "View , Add , Edit , Delete Your Trades", href: "/view-trades" },
+    { label: "Playbook", description: "Create , View , Edit , Delete your Playbooks", href: "/playbook" },
+    { label: "Calendar",description: "See your performance of perticular day", href: "/calendar" },
+    { label: "Setting",description: "Account settings ", href: "/setting" },
   ];
 
-  const menuItems = [
-    {
-      label: "Add Trade",
-      description: "Record a new setup, entry, exit, and notes",
-      href: "#add-trade",
-    },
-    {
-      label: "Add Playbook",
-      description: "Create rules for repeatable trading setups",
-      href: "#add-playbook",
-    },
-    {
-      label: "Analytics",
-      description: "Review win rate, expectancy, and risk metrics",
-      href: "#analytics",
-    },
-    {
-      label: "Trade Journal",
-      description: "Browse, filter, and edit past trades",
-      href: "#trades",
-    },
-    {
-      label: "Calendar",
-      description: "See performance by day and session",
-      href: "#calendar",
-    },
-    {
-      label: "Settings",
-      description: "Manage account, markets, and preferences",
-      href: "#settings",
-    },
-  ];
+ 
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur">
@@ -158,10 +127,9 @@ function Header({ onNewTradeClick }) {
                 className="absolute right-0 top-12 w-[min(92vw,24rem)] rounded-lg border border-zinc-800 bg-zinc-950 p-2 shadow-2xl shadow-black/40"
               >
                 <div className="grid gap-1">
-                  {menuItems.map((item) => (
-                    <a
+                  {navItems.map((item) => (
+                    <Link to={item.href}
                       key={item.label}
-                      href={item.href}
                       className="rounded-md px-3 py-3 transition hover:bg-zinc-900"
                       onClick={() => setIsMenuOpen(false)}
                     >
@@ -171,16 +139,30 @@ function Header({ onNewTradeClick }) {
                       <span className="mt-1 block text-xs leading-5 text-zinc-400">
                         {item.description}
                       </span>
-                    </a>
+                    </Link>
                   ))}
 
+             
+             <div className="flex gap-2">
+
+              <Link to="/add-trade" className="flex-1 sm:hidden">
+              
+                  <button
+                    type="button"
+                    className="w-full block   my-2 bg-emerald-400 hover:bg-emerald-300 text-black font-semibold py-2 px-4 rounded transition"
+                  >
+                    New Trade
+                  </button>
+              </Link>
                   <button
                     type="submit"
                     onClick={() => dispatch(logout())}
-                    className="w-full my-2 bg-emerald-400 hover:bg-emerald-300 text-black font-semibold py-2 px-4 rounded transition"
+                    className="flex-1 sm:w-full my-2 bg-emerald-400 hover:bg-emerald-300 text-black font-semibold py-2 px-4 rounded transition"
                   >
                     Logout
                   </button>
+
+             </div>
                 </div>
               </div>
             )}

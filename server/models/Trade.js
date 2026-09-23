@@ -125,13 +125,6 @@ const tradeSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Trade status
-    status: {
-      type: String,
-      enum: ["OPEN", "CLOSED"],
-      default: "OPEN",
-    },
-
     created_at: {
       type: Date,
       default: Date.now,

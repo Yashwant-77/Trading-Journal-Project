@@ -27,11 +27,11 @@ export default function TradeCard({ trade, onTradeUpdated }) {
   const isProfitable = trade.pnl > 0;
 
   return (
-    <div className={`p-4 rounded-lg shadow-md border-l-4 ${isProfitable ? 'border-green-500 bg-green-50' : trade.pnl < 0 ? 'border-red-500 bg-red-50' : 'border-gray-500 bg-[#1E1E1E]'}`}>
+    <div className={`p-4 rounded-lg shadow-md border-l-4 bg-[#1E1E1E] text-white ${isProfitable ? 'border-green-500 ' : trade.pnl < 0 ? 'border-red-500 bg-red-50' : 'border-gray-500 '}`}>
       <div className="flex justify-between items-start mb-3">
         <div>
           <h3 className="text-xl font-bold">{trade.symbol}</h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-200">
             {trade.type} | Entry: ${trade.entry_price} | Qty: {trade.quantity}
           </p>
         </div>
@@ -41,12 +41,12 @@ export default function TradeCard({ trade, onTradeUpdated }) {
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-sm mb-3">
-        <span className="text-gray-700">Entry Date: {new Date(trade.entry_date).toLocaleDateString()}</span>
-        {trade.exit_date && <span className="text-gray-700">Exit Date: {new Date(trade.exit_date).toLocaleDateString()}</span>}
-        <span className={`font-semibold ${trade.status === 'CLOSED' ? 'text-gray-600' : 'text-blue-600'}`}>Status: {trade.status}</span>
+        <span className="text-gray-200">Entry Date: {new Date(trade.entry_date).toLocaleDateString()}</span>
+        {trade.exit_date && <span className="text-gray-200">Exit Date: {new Date(trade.exit_date).toLocaleDateString()}</span>}
+      
       </div>
 
-      {trade.reason && <p className="text-sm text-gray-700 mb-2"><strong>Reason:</strong> {trade.reason}</p>}
+      {trade.reason && <p className="text-sm text-gray-200 mb-2"><strong>Reason:</strong> {trade.reason}</p>}
       {trade.tags && trade.tags.length > 0 && (
         <div className="mb-2">
           {trade.tags.map((tag, idx) => (

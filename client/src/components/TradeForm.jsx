@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import API from "../api";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { addTrade } from "../store/tradesSlice";
 
-export default function TradeForm({ onTradeAdded }) {
+export default function TradeForm() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -50,12 +54,15 @@ export default function TradeForm({ onTradeAdded }) {
 
       await API.post("/trades", payload);
 
+      setSuccess(true);
+      dispatch(addTrade(formData));
       reset();
       setSelectedImage(null);
 
-      // onTradeAdded();
+     
     } catch (error) {
       console.error("Error creating trade:", error);
+      setSuccess(false);
 
       setError("root.serverError", {
         type: "server",
@@ -533,6 +540,13 @@ export default function TradeForm({ onTradeAdded }) {
             {errors.root?.serverError && (
               <p className="text-red-400 text-sm">
                 {errors.root.serverError.message}
+              </p>
+            )}
+
+            {/* Server success  msg */}
+            {success && (
+              <p className="text-green-600 text-sm">
+                Successfully added the trade ! 
               </p>
             )}
 
