@@ -1,0 +1,113 @@
+# ==========================================
+# Dependencies
+# ==========================================
+
+node_modules/
+**/node_modules/
+
+
+# ==========================================
+# Environment Variables / Secrets
+# ==========================================
+
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# Allow example environment files
+!.env.example
+
+
+# ==========================================
+# Build / Production Files
+# ==========================================
+
+dist/
+build/
+**/dist/
+**/build/
+
+
+# ==========================================
+# Logs
+# ==========================================
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# ==========================================
+# Backend - Node / Express
+# ==========================================
+
+backend/coverage/
+backend/tmp/
+backend/temp/
+
+# Runtime files
+*.pid
+*.pid.lock
+
+
+# ==========================================
+# Frontend - React / Vite
+# ==========================================
+
+frontend/.vite/
+frontend/.cache/
+
+# Vite cache
+.vite/
+
+
+# ==========================================
+# Testing / Coverage
+# ==========================================
+
+coverage/
+.nyc_output/
+
+
+# ==========================================
+# OS Files
+# ==========================================
+
+.DS_Store
+Thumbs.db
+
+
+# ==========================================
+# IDE / Editors
+# ==========================================
+
+.vscode/
+.idea/
+
+# VS Code workspace files
+*.code-workspace
+
+
+# ==========================================
+# Temporary Files
+# ==========================================
+
+tmp/
+temp/
+*.tmp
+
+
+# ==========================================
+# Miscellaneous
+# ==========================================
+
+.cache/
+.parcel-cache/
