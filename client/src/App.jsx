@@ -5,10 +5,13 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./pages/LoginFormHook";
-import Home from "./pages/Home";
+import Login from "./pages/Login";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, loginSuccess } from "./store/authSlice";
+import Dashboard from './pages/Dashboard'
+import TradeForm from "./components/TradeForm";
+import AddTrade from "./pages/AddTrade";
+import ViewTrades from "./pages/ViewTrades";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -68,7 +71,19 @@ function App() {
         <Route
           path="/"
           element={
-            isAuthenticated ? <Home /> : <Navigate to="/login" replace />
+            isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
+          }
+        />
+        <Route
+          path="/add-trade"
+          element={
+            isAuthenticated ? <AddTrade /> : <Navigate to="/login" replace />
+          }
+        />
+        <Route
+          path="/view-trades"
+          element={
+            isAuthenticated ? <ViewTrades /> : <Navigate to="/login" replace />
           }
         />
       </Routes>

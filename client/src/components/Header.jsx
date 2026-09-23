@@ -40,11 +40,11 @@ function Header({ onNewTradeClick }) {
     };
   }, [isMenuOpen]);
   const navItems = [
-    { label: "Dashboard", href: "#dashboard" },
-    { label: "Trades", href: "#trades" },
-    { label: "Analytics", href: "#analytics" },
-    { label: "Playbook", href: "#playbook" },
-    { label: "Calendar", href: "#calendar" },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Trades", href: "/view-trades" },
+    { label: "Analytics", href: "/analytics" },
+    { label: "Playbook", href: "/playbook" },
+    { label: "Calendar", href: "/calendar" },
   ];
 
   const menuItems = [
@@ -124,12 +124,16 @@ function Header({ onNewTradeClick }) {
               Import Trades
             </button>
 
+
+            <Link to='/add-trade' className="cursor-pointer">
+            
+            
             <button
-              onClick={onNewTradeClick}
               className="rounded-lg hidden sm:block bg-emerald-400 px-4 py-2 text-sm font-bold text-zinc-950 transition hover:bg-emerald-300"
             >
               New Trade
             </button>
+            </Link>
             <button
               ref={menuRef}
               type="button"

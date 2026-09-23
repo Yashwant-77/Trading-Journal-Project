@@ -10,7 +10,8 @@ router.get('/', auth, async (req, res) => {
     const trades = await Trade.find({ user_id: req.user.id }).sort({ created_at: -1 });
     res.json(trades);
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    c
+    res.status(500).json({ msg: 'Server error' + err });
   }
 });
 
@@ -28,26 +29,67 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // Create trade
-router.post('/', auth, async (req, res) => {
+router.post("/", auth, async (req, res) => {
   try {
-    const { symbol, type, entry_price, quantity, entry_date, reason, tags, notes } = req.body;
+    const {
+      symbol,
+      type,
+      playbook,
+      entry_price,
+      exit_price,
+      quantity,
+      entry_date,
+      entry_time,
+      exit_date,
+      exit_time,
+      sl,
+      tp,
+      entry_fees,
+      exit_fees,
+      pnl,
+      reason,
+      tags,
+      notes,
+    } = req.body;
 
     const newTrade = new Trade({
       user_id: req.user.id,
+
       symbol,
       type,
+      playbook,
+
       entry_price,
+      exit_price,
       quantity,
+
       entry_date,
+      entry_time,
+      exit_date,
+      exit_time,
+
+      sl,
+      tp,
+
+      entry_fees,
+      exit_fees,
+
+      pnl,
+
       reason,
       tags,
-      notes
+      notes,
     });
 
     const trade = await newTrade.save();
+
     res.status(201).json(trade);
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    console.error("CREATE TRADE ERROR:", err);
+
+    res.status(500).json({
+      msg: err.message,
+    });
   }
 });
 
