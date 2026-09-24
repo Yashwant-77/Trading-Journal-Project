@@ -1,4 +1,3 @@
-
 import React from "react";
 
 function DashboardFilters({
@@ -20,13 +19,11 @@ function DashboardFilters({
 
   return (
     <div className="space-y-3">
-
       {/* ========================= */}
       {/* DATE FILTERS */}
       {/* ========================= */}
 
       <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-
         {filters.map((filter) => (
           <button
             key={filter.value}
@@ -34,23 +31,20 @@ function DashboardFilters({
             onClick={() => setRange(filter.value)}
             className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition ${
               range === filter.value
-                ? "bg-indigo-500 text-white"
+                ? "bg-emerald-400 text-black"
                 : "bg-[#1E1E1E] text-zinc-400 border border-zinc-800 hover:text-white hover:border-zinc-700"
             }`}
           >
             {filter.label}
           </button>
         ))}
-
       </div>
-
 
       {/* ========================= */}
       {/* PLAYBOOK FILTER */}
       {/* ========================= */}
 
       <div className="flex items-center gap-3">
-
         <label className="text-sm text-zinc-400 whitespace-nowrap">
           Playbook
         </label>
@@ -58,29 +52,19 @@ function DashboardFilters({
         <select
           value={playbook}
           onChange={(e) => setPlaybook(e.target.value)}
-          className="bg-[#1E1E1E] text-white border border-zinc-800 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 transition"
+          className="bg-[#1E1E1E] text-white border border-zinc-800 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500 transition"
         >
+          <option value="all">All Playbooks</option>
 
-          <option value="all">
-            All Playbooks
-          </option>
-
-          {playbooks.map((item) => (
-            <option
-              key={item}
-              value={item}
-            >
-              {item}
+          {playbooks.map((playbook) => (
+            <option key={playbook._id} value={playbook._id}>
+              {playbook.name}
             </option>
           ))}
-
         </select>
-
       </div>
-
     </div>
   );
 }
 
 export default DashboardFilters;
-

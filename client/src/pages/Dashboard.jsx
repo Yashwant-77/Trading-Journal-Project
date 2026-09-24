@@ -1,59 +1,3 @@
-// import React from "react";
-// import { useEffect } from "react";
-// import Header from "../components/Header";
-// import API from "../api";
-// import { useDispatch, useSelector } from "react-redux";
-// import { setTrades } from "../store/tradesSlice";
-
-// function Dashboard() {
-//   const trades = useSelector((state) => state.trades.trades)
-
-// const stats = getTradeStats(filteredTrades);
-
-//   return (
-//     <div className="">
-//       <Header />
-
-//       <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-5 gap-4 mb-8 ">
-//         <div className="bg-[#1E1E1E]  p-4 rounded-lg shadow text-center">
-//           <p className="text-white font-bold">Total Trades</p>
-//           <p className="text-3xl font-bold text-blue-600">
-//             {stats.totalTrades}
-//           </p>
-//         </div>
-//         <div className="bg-[#1E1E1E] p-4 rounded-lg shadow text-center">
-//           <p className="text-white font-bold">Open</p>
-//           <p className="text-3xl font-bold text-yellow-600">
-//             {stats.openTrades}
-//           </p>
-//         </div>
-//         <div className="bg-[#1E1E1E] p-4 rounded-lg shadow text-center">
-//           <p className="text-white font-bold">Closed</p>
-//           <p className="text-3xl font-bold text-green-600">
-//             {stats.closedTrades}
-//           </p>
-//         </div>
-//         <div className="bg-[#1E1E1E] p-4 rounded-lg shadow text-center">
-//           <p className="text-white font-bold">Total P&L</p>
-//           <p
-//             className={`text-3xl font-bold ${stats.totalPnL >= 0 ? "text-green-600" : "text-red-600"}`}
-//           >
-//             ${stats.totalPnL.toFixed(2)}
-//           </p>
-//         </div>
-//         <div className="bg-[#1E1E1E] p-4 rounded-lg shadow text-center">
-//           <p className="text-white font-bold">Win Rate</p>
-//           <p className="text-3xl font-bold text-purple-600">{stats.winRate}%</p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Dashboard;
-
-// ----------------------------------------------------------------------------------------------
-
 import React, { useMemo, useState } from "react";
 import Header from "../components/Header";
 import { useSelector } from "react-redux";
@@ -76,28 +20,24 @@ import { getPlaybookPerformance } from "../utils/tradeAnalytics";
 import PlaybookSummary from "../components/dashboard/PlaybookSummary";
 import PlaybookPerformanceTable from "../components/dashboard/PlaybookPerformanceTable";
 import PlaybookRChart from "../components/dashboard/PlaybookRChart";
+import TimeHeatmap from "../components/dashboard/TimeHeatMap";
 import {
   getTradeQualityStats,
   getRDistribution,
 } from "../utils/tradeAnalytics";
 import TradeQualityMetrics from "../components/dashboard/TradeQualityMetrics";
 import RDistributionChart from "../components/dashboard/RDistributionChart";
+import { getTimeHeatmapData } from "../utils/tradeAnalytics";
 
 import { calculateStats } from "../utils/tradeAnalytics";
 
 function Dashboard() {
-
-  
   const trades = useSelector((state) => state.trades.trades);
 
   const [range, setRange] = useState("all");
   const [playbook, setPlaybook] = useState("all");
 
-  const playbooks = useMemo(() => {
-    return [
-      ...new Set(trades.map((trade) => trade.playbook?.trim()).filter(Boolean)),
-    ].sort();
-  }, [trades]);
+  const playbooks = useSelector((state) => state.playbooks.playbooks);
 
   // ===============================
   // FILTER TRADES
@@ -185,9 +125,7 @@ function Dashboard() {
       return filteredTrades;
     }
 
-    return filteredTrades.filter(
-      (trade) => trade.playbook?.trim() === playbook,
-    );
+    return filteredTrades.filter((trade) => trade.playbook_id === playbook);
   }, [filteredTrades, playbook]);
 
   // ===============================
@@ -198,9 +136,6 @@ function Dashboard() {
     () => calculateStats(strategyFilteredTrades),
     [strategyFilteredTrades],
   );
-
-
-
 
   return (
     <div className="min-h-screen bg-[#121212]">
@@ -315,8 +250,7 @@ function Dashboard() {
           {/* Win / Loss */}
           <WinLossChart trades={strategyFilteredTrades} />
 
-          {/* Playbook */}
-          <PlaybookPnLChart trades={strategyFilteredTrades} />
+       
 
           {/* Symbol */}
           <SymbolPnLChart trades={strategyFilteredTrades} />
@@ -395,6 +329,12 @@ function Dashboard() {
 
           <DirectionChart trades={strategyFilteredTrades} />
         </div>
+
+        {/* Time Heatmap */}
+
+        <div className="mb-6">
+          <TimeHeatmap trades={strategyFilteredTrades} />
+        </div>
         {/* ========================= */}
         {/* PHASE 5 — STRATEGY ANALYSIS */}
         {/* ========================= */}
@@ -420,42 +360,28 @@ function Dashboard() {
           <PlaybookPerformanceTable trades={strategyFilteredTrades} />
         </div>
         {/* ========================= */}
-{/* PHASE 6 — TRADE QUALITY */}
-{/* ========================= */}
+        {/* PHASE 6 — TRADE QUALITY */}
+        {/* ========================= */}
 
-<div className="mt-10 mb-5">
+        <div className="mt-10 mb-5">
+          <h2 className="text-xl font-bold text-white">Trade Quality</h2>
 
-  <h2 className="text-xl font-bold text-white">
-    Trade Quality
-  </h2>
+          <p className="text-sm text-zinc-500 mt-1">
+            Analyze how efficiently your trades convert risk into returns
+          </p>
+        </div>
 
-  <p className="text-sm text-zinc-500 mt-1">
-    Analyze how efficiently your trades convert risk into returns
-  </p>
+        {/* Trade Quality Metrics */}
 
-</div>
+        <div className="mb-6">
+          <TradeQualityMetrics trades={strategyFilteredTrades} />
+        </div>
 
+        {/* R Distribution */}
 
-{/* Trade Quality Metrics */}
-
-<div className="mb-6">
-
-  <TradeQualityMetrics
-    trades={strategyFilteredTrades}
-  />
-
-</div>
-
-
-{/* R Distribution */}
-
-<div className="mb-6">
-
-  <RDistributionChart
-    trades={strategyFilteredTrades}
-  />
-
-</div>
+        <div className="mb-6">
+          <RDistributionChart trades={strategyFilteredTrades} />
+        </div>
       </main>
     </div>
   );

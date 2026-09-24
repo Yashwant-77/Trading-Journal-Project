@@ -1,30 +1,33 @@
-const express = require('express');
-const Trade = require('../models/Trade');
-const auth = require('../middleware/auth');
+const express = require("express");
+const Trade = require("../models/Trade");
+const auth = require("../middleware/auth");
+const Playbook = require("../models/Playbook");
 
 const router = express.Router();
 
 // Get all trades for user
-router.get('/', auth, async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
-    const trades = await Trade.find({ user_id: req.user.id }).sort({ created_at: -1 });
+    const trades = await Trade.find({ user_id: req.user.id }).sort({
+      created_at: -1,
+    });
     res.json(trades);
   } catch (err) {
-    c
-    res.status(500).json({ msg: 'Server error' + err });
+    c;
+    res.status(500).json({ msg: "Server error" + err });
   }
 });
 
 // Get single trade
-router.get('/:id', auth, async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
   try {
     const trade = await Trade.findById(req.params.id);
     if (!trade) {
-      return res.status(404).json({ msg: 'Trade not found' });
+      return res.status(404).json({ msg: "Trade not found" });
     }
     res.json(trade);
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
@@ -34,7 +37,7 @@ router.post("/", auth, async (req, res) => {
     const {
       symbol,
       type,
-      playbook,
+      playbook_id,
       entry_price,
       exit_price,
       quantity,
@@ -51,54 +54,49 @@ router.post("/", auth, async (req, res) => {
       tags,
       notes,
     } = req.body;
-
+    // Check whether playbook exists
+    const playbook = await Playbook.findOne({
+      _id: playbook_id,
+      user_id: req.user.id,
+    });
+    if (!playbook) {
+      return res.status(400).json({ msg: "Invalid playbook" });
+    }
     const newTrade = new Trade({
       user_id: req.user.id,
-
       symbol,
       type,
-      playbook,
-
+      playbook_id,
       entry_price,
       exit_price,
       quantity,
-
       entry_date,
       entry_time,
       exit_date,
       exit_time,
-
       sl,
       tp,
-
       entry_fees,
       exit_fees,
-
       pnl,
-
       reason,
       tags,
       notes,
     });
-
     const trade = await newTrade.save();
-
     res.status(201).json(trade);
   } catch (err) {
     console.error("CREATE TRADE ERROR:", err);
-
-    res.status(500).json({
-      msg: err.message,
-    });
+    res.status(500).json({ msg: err.message });
   }
 });
 
 // Update trade
-router.put('/:id', auth, async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   try {
     let trade = await Trade.findById(req.params.id);
     if (!trade) {
-      return res.status(404).json({ msg: 'Trade not found' });
+      return res.status(404).json({ msg: "Trade not found" });
     }
 
     const { exit_price, exit_date, status, notes } = req.body;
@@ -110,20 +108,20 @@ router.put('/:id', auth, async (req, res) => {
     await trade.save();
     res.json(trade);
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
 // Delete trade
-router.delete('/:id', auth, async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   try {
     const trade = await Trade.findByIdAndRemove(req.params.id);
     if (!trade) {
-      return res.status(404).json({ msg: 'Trade not found' });
+      return res.status(404).json({ msg: "Trade not found" });
     }
-    res.json({ msg: 'Trade deleted' });
+    res.json({ msg: "Trade deleted" });
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: "Server error" });
   }
 });
 

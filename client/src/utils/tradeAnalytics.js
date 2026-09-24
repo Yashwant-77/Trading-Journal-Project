@@ -1186,3 +1186,82 @@ export const getRDistribution = (trades) => {
 
 
 
+
+// ============================================
+// DAY / HOUR P&L HEATMAP
+// ============================================
+
+export const getTimeHeatmapData = (trades) => {
+
+  const days = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+
+  const hours = {};
+
+  trades.forEach((trade) => {
+
+    if (!trade.entry_date || !trade.entry_time) {
+      return;
+    }
+
+    const date = new Date(trade.entry_date);
+
+    const jsDay = date.getDay();
+
+    const dayIndex =
+      jsDay === 0
+        ? 6
+        : jsDay - 1;
+
+    const hour = Number(
+      trade.entry_time.split(":")[0]
+    );
+
+    if (Number.isNaN(hour)) {
+      return;
+    }
+
+    if (!hours[hour]) {
+      hours[hour] = {};
+    }
+
+    if (!hours[hour][days[dayIndex]]) {
+      hours[hour][days[dayIndex]] = 0;
+    }
+
+    hours[hour][days[dayIndex]] += Number(
+      trade.net_pnl || 0
+    );
+
+  });
+
+
+  return Object.keys(hours)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map((hour) => {
+
+      const row = {
+        hour,
+        label: `${String(hour).padStart(2, "0")}:00`,
+      };
+
+      days.forEach((day) => {
+
+        row[day] =
+          hours[hour][day] || 0;
+
+      });
+
+      return row;
+
+    });
+};
+

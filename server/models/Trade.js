@@ -23,12 +23,11 @@ const tradeSchema = new mongoose.Schema(
       required: true,
     },
 
-    playbook: {
-      type: String,
+    playbook_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Playbook",
       required: true,
-      trim: true,
     },
-
     // Prices
     entry_price: {
       type: Number,

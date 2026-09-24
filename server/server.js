@@ -17,6 +17,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/trades', require('./routes/trades'));
+app.use('/api/playbooks'  , require("./routes/playbook"));
 
 // Basic route
 app.get('/', (req, res) => {

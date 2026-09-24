@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import API from "../api";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addTrade } from "../store/tradesSlice";
 
 export default function TradeForm() {
@@ -9,6 +9,7 @@ export default function TradeForm() {
   const [isDragging, setIsDragging] = useState(false);
   const [success, setSuccess] = useState(false);
   const dispatch = useDispatch();
+  const playbooks = useSelector((state) => state.playbooks.playbooks);
 
   const {
     register,
@@ -58,8 +59,6 @@ export default function TradeForm() {
       dispatch(addTrade(formData));
       reset();
       setSelectedImage(null);
-
-     
     } catch (error) {
       console.error("Error creating trade:", error);
       setSuccess(false);
@@ -167,23 +166,28 @@ export default function TradeForm() {
 
             {/* Playbook */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Playbook(Strategy)
+              <label className="block text-sm text-zinc-400 mb-2">
+                Playbook
               </label>
 
               <select
-                className="w-full px-3 py-2 border bg-[#1E1E1E] border-gray-500 rounded focus:outline-none focus:ring-2 focus:ring-emerald-300 "
-                {...register("playbook", {
-                  required: "Type is required",
+                {...register("playbook_id", {
+                  required: "Please select a playbook.",
                 })}
+                className="w-full bg-[#1E1E1E] border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 transition"
               >
-                <option value="3 Touch Point Break">3 Touch Point Break</option>
-                <option value="2 Touch point Break">2 Touch point Break</option>
+                <option value="">Select Playbook</option>
+
+                {playbooks.map((playbook) => (
+                  <option key={playbook._id} value={playbook._id}>
+                    {playbook.name}
+                  </option>
+                ))}
               </select>
 
-              {errors.playbook && (
+              {errors.playbook_id && (
                 <p className="text-red-400 text-sm mt-1">
-                  {errors.playbook.message}
+                  {errors.playbook_id.message}
                 </p>
               )}
             </div>
@@ -533,22 +537,20 @@ export default function TradeForm() {
                 {...register("notes")}
               />
             </div>
-
-          
           </div>
-            {/* Server error */}
-            {errors.root?.serverError && (
-              <p className="text-red-400 text-sm">
-                {errors.root.serverError.message}
-              </p>
-            )}
+          {/* Server error */}
+          {errors.root?.serverError && (
+            <p className="text-red-400 text-sm">
+              {errors.root.serverError.message}
+            </p>
+          )}
 
-            {/* Server success  msg */}
-            {success && (
-              <p className="text-green-600 text-sm">
-                Successfully added the trade ! 
-              </p>
-            )}
+          {/* Server success  msg */}
+          {success && (
+            <p className="text-green-600 text-sm">
+              Successfully added the trade !
+            </p>
+          )}
 
           <button
             type="submit"
