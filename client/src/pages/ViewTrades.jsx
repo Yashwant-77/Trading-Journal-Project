@@ -1,6 +1,6 @@
 import Header from "../components/Header";
 import { useSelector } from "react-redux";
-import TradeCard from "../components/TradeCardNew";
+import TradeCard from "../components/TradeCard";
 
 function ViewTrades() {
   const trades = useSelector((state) => state.trades.trades);

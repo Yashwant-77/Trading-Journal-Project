@@ -19,6 +19,7 @@ import Playbooks from "./pages/Playbooks";
 import { setPlaybooks } from "./store/playbooksSlice";
 import Calendar from "./pages/Calendar";
 import Settings from "./pages/Settings";
+import TradeDetails from "./pages/TradeDetails";
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const loading = useSelector((state) => state.auth.loading);
@@ -114,8 +115,19 @@ function App() {
             isAuthenticated ? <ViewTrades /> : <Navigate to="/login" replace />
           }
         />
-        <Route path="/playbooks/new" element={<CreatePlaybook />} />
+        <Route
+          path="/playbooks/new"
+          element={
+            isAuthenticated ? <CreatePlaybook /> : <Navigate to="/login" />
+          }
+        />
 
+        <Route
+          path="/playbooks/:id/edit"
+          element={
+            isAuthenticated ? <CreatePlaybook /> : <Navigate to="/login" />
+          }
+        />
         <Route path="/playbooks" element={<Playbooks />} />
         <Route
           path="/calendar"
@@ -124,10 +136,14 @@ function App() {
           }
         />
         <Route
-  path="/settings"
-  element={
-    isAuthenticated ? <Settings/> : <Navigate to='/login' replace />
-  }
+          path="/settings"
+          element={
+            isAuthenticated ? <Settings /> : <Navigate to="/login" replace />
+          }
+        />
+        <Route
+  path="/trades/:id"
+  element={isAuthenticated ? <TradeDetails /> : <Navigate to="/login" />}
 />
       </Routes>
     </Router>

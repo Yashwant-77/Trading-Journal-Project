@@ -1,27 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import API from "../api";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { addTrade } from "../store/tradesSlice";
 
 export default function TradeForm() {
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImages, setSelectedImages] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [success, setSuccess] = useState(false);
   const dispatch = useDispatch();
   const playbooks = useSelector((state) => state.playbooks.playbooks);
+  const [checklist, setChecklist] = useState([]);
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     setError,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       symbol: "",
       type: "LONG",
-      playbook: "",
+      playbook_id: "",
       entry_price: "",
       exit_price: "",
       quantity: "",
@@ -38,29 +40,67 @@ export default function TradeForm() {
     },
   });
 
+  const selectedPlaybookId = watch("playbook_id");
+
   const handleAPI = async (formData) => {
     try {
       const payload = {
         ...formData,
+
         tags: formData.tags
           .split(",")
           .map((tag) => tag.trim())
           .filter((tag) => tag),
+
+        checklist,
       };
 
-      // For now, image is only selected locally.
-      // Later you can upload it with FormData.
-      console.log("Trade data:", payload);
-      console.log("Screenshot:", selectedImage);
+      // 1. Create the trade
+      const response = await API.post("/trades", payload);
 
-      await API.post("/trades", payload);
+      const createdTrade = response.data;
+
+      let finalTrade = createdTrade;
+
+      // 2. Upload screenshots after trade is created
+      if (selectedImages.length > 0) {
+        const imageFormData = new FormData();
+
+        selectedImages.forEach((image) => {
+          imageFormData.append("screenshots", image.file);
+        });
+
+        const screenshotResponse = await API.post(
+          `/trades/${createdTrade._id}/screenshots`,
+          imageFormData,
+        );
+
+        finalTrade = {
+          ...createdTrade,
+          screenshots: screenshotResponse.data.screenshots,
+        };
+      }
+
+      // 3. Add complete trade to Redux
+      dispatch(addTrade(finalTrade));
 
       setSuccess(true);
-      dispatch(addTrade(formData));
+
+      // 4. Reset form
       reset();
-      setSelectedImage(null);
+      setChecklist([]);
+
+      // 5. Clean up preview URLs
+      selectedImages.forEach((image) => {
+        if (image.preview) {
+          URL.revokeObjectURL(image.preview);
+        }
+      });
+
+      setSelectedImages([]);
     } catch (error) {
       console.error("Error creating trade:", error);
+
       setSuccess(false);
 
       setError("root.serverError", {
@@ -72,23 +112,90 @@ export default function TradeForm() {
     }
   };
 
+  useEffect(() => {
+    const selectedPlaybook = playbooks.find(
+      (playbook) => playbook._id === selectedPlaybookId,
+    );
+
+    if (!selectedPlaybook) {
+      setChecklist([]);
+      return;
+    }
+
+    const rules = [
+      ...(selectedPlaybook.entry_criteria || []).map((criterion) => ({
+        category: "entry",
+        criterion,
+        followed: false,
+      })),
+
+      ...(selectedPlaybook.exit_criteria || []).map((criterion) => ({
+        category: "exit",
+        criterion,
+        followed: false,
+      })),
+
+      ...(selectedPlaybook.market_conditions || []).map((criterion) => ({
+        category: "market",
+        criterion,
+        followed: false,
+      })),
+    ];
+
+    setChecklist(rules);
+  }, [selectedPlaybookId, playbooks]);
+
+  const toggleChecklistItem = (index) => {
+    setChecklist((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              followed: !item.followed,
+            }
+          : item,
+      ),
+    );
+  };
+
   // Handle selecting image through file input
-  const handleImageSelect = (file) => {
-    if (!file) return;
+  // Handle selecting multiple screenshots
+  const handleImageSelect = (files) => {
+    if (!files || files.length === 0) return;
 
-    // Only allow images
-    if (!file.type.startsWith("image/")) {
-      alert("Please select an image file.");
-      return;
-    }
+    const newImages = [];
 
-    // Optional size restriction: 5 MB
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image size should be less than 5 MB.");
-      return;
-    }
+    Array.from(files).forEach((file) => {
+      // Only allow images
+      if (!file.type.startsWith("image/")) {
+        return;
+      }
 
-    setSelectedImage(file);
+      // Max 5 MB per image
+      if (file.size > 5 * 1024 * 1024) {
+        return;
+      }
+
+      newImages.push({
+        file,
+        preview: URL.createObjectURL(file),
+      });
+    });
+
+    setSelectedImages((prev) => [...prev, ...newImages]);
+  };
+
+  // Remove a selected screenshot
+  const removeSelectedImage = (index) => {
+    setSelectedImages((prev) => {
+      const imageToRemove = prev[index];
+
+      if (imageToRemove?.preview) {
+        URL.revokeObjectURL(imageToRemove.preview);
+      }
+
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   // Drag events
@@ -106,16 +213,20 @@ export default function TradeForm() {
     e.preventDefault();
     setIsDragging(false);
 
-    const file = e.dataTransfer.files[0];
-
-    handleImageSelect(file);
+    handleImageSelect(e.dataTransfer.files);
   };
 
   return (
     <div className="bg-[#1E1E1E] text-white p-6 pb-10 rounded-lg shadow-md mb-6  ">
-      <h2 className="text-xl font-bold bg-zinc-900 mb-4 rounded-lg border border-zinc-700 px-4 py-2 t  transition  text-emerald-400 sm:inline-flex text-center">
-        Log New Trade
-      </h2>
+      <div className="mb-6">
+        <h1 className="text-xl sm:text-lg font-bold text-white">
+          Log Your New Trades
+        </h1>
+
+        <p className="text-sm text-zinc-500 mt-1">
+          Journal your trades properly
+        </p>
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* LEFT SIDE - FORM */}
@@ -537,17 +648,163 @@ export default function TradeForm() {
                 {...register("notes")}
               />
             </div>
+
+            {/* ================================= */}
+            {/* TRADE QUALITY CHECKLIST */}
+            {/* ================================= */}
+
+            {checklist.length > 0 && (
+              <div className="bg-[#18181B] border border-zinc-800 rounded-xl p-5 mb-5">
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h2 className="text-lg font-semibold text-white">
+                      Trade Quality Checklist
+                    </h2>
+
+                    <p className="text-sm text-zinc-400 mt-1">
+                      Check the rules you actually followed for this trade.
+                    </p>
+                  </div>
+
+                  <div className="text-sm text-zinc-400">
+                    {checklist.filter((item) => item.followed).length} /{" "}
+                    {checklist.length}
+                  </div>
+                </div>
+
+                {/* Entry Rules */}
+                {checklist.some((item) => item.category === "entry") && (
+                  <div className="mb-5">
+                    <h3 className="text-sm font-semibold text-emerald-400 mb-3">
+                      Entry Rules
+                    </h3>
+
+                    <div className="space-y-2">
+                      {checklist.map((item, index) => {
+                        if (item.category !== "entry") return null;
+
+                        return (
+                          <label
+                            key={index}
+                            className="flex items-start gap-3 p-3 rounded-lg bg-[#1E1E1E] hover:bg-zinc-800 cursor-pointer transition"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={item.followed}
+                              onChange={() => toggleChecklistItem(index)}
+                              className="mt-1 w-4 h-4 accent-emerald-400"
+                            />
+
+                            <span
+                              className={`text-sm ${
+                                item.followed ? "text-white" : "text-zinc-400"
+                              }`}
+                            >
+                              {item.criterion}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Exit Rules */}
+                {checklist.some((item) => item.category === "exit") && (
+                  <div className="mb-5">
+                    <h3 className="text-sm font-semibold text-emerald-400 mb-3">
+                      Exit Rules
+                    </h3>
+
+                    <div className="space-y-2">
+                      {checklist.map((item, index) => {
+                        if (item.category !== "exit") return null;
+
+                        return (
+                          <label
+                            key={index}
+                            className="flex items-start gap-3 p-3 rounded-lg bg-[#1E1E1E] hover:bg-zinc-800 cursor-pointer transition"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={item.followed}
+                              onChange={() => toggleChecklistItem(index)}
+                              className="mt-1 w-4 h-4 accent-emerald-400"
+                            />
+
+                            <span
+                              className={`text-sm ${
+                                item.followed ? "text-white" : "text-zinc-400"
+                              }`}
+                            >
+                              {item.criterion}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Market Conditions */}
+                {checklist.some((item) => item.category === "market") && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-emerald-400 mb-3">
+                      Market Conditions
+                    </h3>
+
+                    <div className="space-y-2">
+                      {checklist.map((item, index) => {
+                        if (item.category !== "market") return null;
+
+                        return (
+                          <label
+                            key={index}
+                            className="flex items-start gap-3 p-3 rounded-lg bg-[#1E1E1E] hover:bg-zinc-800 cursor-pointer transition"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={item.followed}
+                              onChange={() => toggleChecklistItem(index)}
+                              className="mt-1 w-4 h-4 accent-emerald-400"
+                            />
+
+                            <span
+                              className={`text-sm ${
+                                item.followed ? "text-white" : "text-zinc-400"
+                              }`}
+                            >
+                              {item.criterion}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Current Score */}
+                <div className="mt-5 pt-4 border-t border-zinc-800 flex justify-between">
+                  <span className="text-sm text-zinc-400">Rules followed</span>
+
+                  <span className="text-sm font-semibold text-white">
+                    {checklist.filter((item) => item.followed).length} /{" "}
+                    {checklist.length}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
           {/* Server error */}
           {errors.root?.serverError && (
-            <p className="text-red-400 text-sm">
+            <p className="text-red-400 text-sm my-4">
               {errors.root.serverError.message}
             </p>
           )}
 
           {/* Server success  msg */}
           {success && (
-            <p className="text-green-600 text-sm">
+            <p className="text-green-400 text-sm my-4">
               Successfully added the trade !
             </p>
           )}
@@ -562,6 +819,7 @@ export default function TradeForm() {
         </form>
 
         {/* RIGHT SIDE - SCREENSHOT */}
+        {/* RIGHT SIDE - SCREENSHOTS */}
         <div className="flex-1 min-h-[400px]">
           <div
             onDragOver={handleDragOver}
@@ -573,51 +831,89 @@ export default function TradeForm() {
                 : "border-zinc-600 bg-zinc-900/40"
             }`}
           >
-            {!selectedImage ? (
+            {selectedImages.length === 0 ? (
               <>
                 <div className="text-5xl mb-4">📸</div>
 
-                <h3 className="text-lg font-semibold mb-2">Trade Screenshot</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  Trade Screenshots
+                </h3>
 
                 <p className="text-sm text-zinc-400 text-center mb-4">
-                  Drag and drop your trade screenshot here
+                  Drag and drop your trade screenshots here
                 </p>
 
                 <p className="text-xs text-zinc-500 mb-4">or</p>
 
                 <label className="cursor-pointer bg-emerald-400 hover:bg-emerald-300 text-black font-semibold px-4 py-2 rounded">
-                  Choose Screenshot
+                  Choose Screenshots
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     className="hidden"
-                    onChange={(e) => handleImageSelect(e.target.files[0])}
+                    onChange={(e) => handleImageSelect(e.target.files)}
                   />
                 </label>
 
                 <p className="text-xs text-zinc-500 mt-4">
-                  PNG, JPG, JPEG • Max 5 MB
+                  PNG, JPG, JPEG, WEBP • Max 5 MB each
                 </p>
               </>
             ) : (
               <>
-                <img
-                  src={URL.createObjectURL(selectedImage)}
-                  alt="Trade screenshot preview"
-                  className="max-h-[300px] max-w-full rounded-lg object-contain"
-                />
+                <div className="w-full">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-white">
+                      Selected Screenshots
+                    </h3>
 
-                <p className="text-sm text-zinc-300 mt-3">
-                  {selectedImage.name}
-                </p>
+                    <span className="text-xs text-zinc-400">
+                      {selectedImages.length} selected
+                    </span>
+                  </div>
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedImage(null)}
-                  className="mt-4 px-4 py-2 rounded bg-red-500 hover:bg-red-400 text-white font-semibold"
-                >
-                  Remove Screenshot
-                </button>
+                  <div className="grid grid-cols-2 gap-4">
+                    {selectedImages.map((image, index) => (
+                      <div
+                        key={image.preview}
+                        className="relative group rounded-lg overflow-hidden border border-zinc-700 bg-zinc-900"
+                      >
+                        <img
+                          src={image.preview}
+                          alt={`Trade screenshot ${index + 1}`}
+                          className="w-full h-40 object-cover"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => removeSelectedImage(index)}
+                          className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-red-500 text-white flex items-center justify-center transition"
+                          title="Remove screenshot"
+                        >
+                          ×
+                        </button>
+
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1">
+                          <p className="text-xs text-zinc-300 truncate">
+                            {image.file.name}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <label className="mt-4 w-full cursor-pointer border border-zinc-700 hover:border-emerald-400 rounded-lg py-2.5 flex items-center justify-center text-sm text-zinc-300 hover:text-emerald-400 transition">
+                    + Add More Screenshots
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handleImageSelect(e.target.files)}
+                    />
+                  </label>
+                </div>
               </>
             )}
           </div>

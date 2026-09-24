@@ -225,7 +225,7 @@ function Settings() {
                 onChange={(e) =>
                   updateSetting("dashboardPeriod", e.target.value)
                 }
-                className="w-full sm:w-48 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-indigo-500"
+                className="w-full sm:w-48 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:ring-2  focus:ring-emerald-300"
               >
                 <option value="all">All Time</option>
                 <option value="today">Today</option>
@@ -257,7 +257,7 @@ function Settings() {
                 onChange={(e) =>
                   updateSetting("calendarView", e.target.value)
                 }
-                className="w-full sm:w-48 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-indigo-500"
+                className="w-full sm:w-48 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-300"
               >
                 <option value="month">Month</option>
               </select>
@@ -288,7 +288,7 @@ function Settings() {
                 }
                 className={`relative w-11 h-6 rounded-full transition ${
                   settings.confirmDelete
-                    ? "bg-indigo-500"
+                    ? "bg-emerald-400"
                     : "bg-zinc-700"
                 }`}
               >
@@ -344,7 +344,7 @@ function Settings() {
                   onClick={() => updateSetting("theme", "dark")}
                   className={`px-4 py-2 rounded-lg text-sm border transition ${
                     settings.theme === "dark"
-                      ? "bg-indigo-500/10 border-indigo-500 text-indigo-400"
+                      ? "bg-emerald-400/10 border-emerald-400 text-emerald-400"
                       : "border-zinc-700 text-zinc-400 hover:bg-zinc-800"
                   }`}
                 >
@@ -356,7 +356,7 @@ function Settings() {
                   onClick={() => updateSetting("theme", "light")}
                   className={`px-4 py-2 rounded-lg text-sm border transition ${
                     settings.theme === "light"
-                      ? "bg-indigo-500/10 border-indigo-500 text-indigo-400"
+                      ? "bg-emerald-400/10 border-emerald-400 text-emerald-400"
                       : "border-zinc-700 text-zinc-400 hover:bg-zinc-800"
                   }`}
                 >
@@ -386,7 +386,7 @@ function Settings() {
                 onChange={(e) =>
                   updateSetting("density", e.target.value)
                 }
-                className="w-full sm:w-48 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-indigo-500"
+                className="w-full sm:w-48 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-300"
               >
                 <option value="comfortable">
                   Comfortable

@@ -488,7 +488,7 @@ const filteredTrades = useMemo(() => {
       setPlaybookFilter(e.target.value);
       setSelectedDate(null);
     }}
-    className="w-full sm:w-64 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-indigo-500"
+    className="w-full sm:w-64 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-emerald-400"
   >
     <option value="all">All Playbooks</option>
 
@@ -506,7 +506,7 @@ const filteredTrades = useMemo(() => {
       setSymbolFilter(e.target.value);
       setSelectedDate(null);
     }}
-    className="w-full sm:w-64 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-indigo-500"
+    className="w-full sm:w-64 bg-[#121212] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-emerald-400"
   >
     <option value="all">All Symbols</option>
 
@@ -577,7 +577,7 @@ const filteredTrades = useMemo(() => {
           <div className="bg-[#181818] border border-zinc-800 rounded-xl p-4">
             <div className="text-xs text-zinc-500">Win Rate</div>
 
-            <div className="text-lg font-semibold text-indigo-400 mt-1">
+            <div className="text-lg font-semibold text-emerald-400 mt-1">
               {monthlyStats.winRate.toFixed(1)}%
             </div>
           </div>
@@ -711,7 +711,7 @@ const filteredTrades = useMemo(() => {
       hover:bg-zinc-800/50
       cursor-pointer
       transition
-      ${isSelected ? "ring-2 ring-inset ring-indigo-500" : ""}
+      ${isSelected ? "ring-2 ring-inset ring-emerald-400" : ""}
     `}
                 >
                   {/* Date */}
@@ -722,7 +722,7 @@ const filteredTrades = useMemo(() => {
           w-7 h-7
           rounded-full
           text-sm font-medium
-          ${isToday(day) ? "bg-indigo-500 text-white" : "text-zinc-300"}
+          ${isToday(day) ? "bg-emerald-400 text-white" : "text-zinc-300"}
         `}
                     >
                       {day}
@@ -863,7 +863,7 @@ const filteredTrades = useMemo(() => {
                   <SummaryCard
                     label="Win Rate"
                     value={`${selectedWinRate.toFixed(1)}%`}
-                    valueClass="text-indigo-400"
+                    valueClass="text-emerald-400"
                   />
 
                   <SummaryCard

@@ -28,6 +28,7 @@ const tradeSchema = new mongoose.Schema(
       ref: "Playbook",
       required: true,
     },
+
     // Prices
     entry_price: {
       type: Number,
@@ -114,6 +115,7 @@ const tradeSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+
     tags: {
       type: [String],
       default: [],
@@ -122,6 +124,61 @@ const tradeSchema = new mongoose.Schema(
     notes: {
       type: String,
       trim: true,
+    },
+
+    // Trade quality checklist
+    checklist: [
+      {
+        category: {
+          type: String,
+          enum: ["entry", "exit", "market"],
+          required: true,
+        },
+
+        criterion: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+
+        followed: {
+          type: Boolean,
+          required: true,
+        },
+      },
+    ],
+
+    screenshots: [
+      {
+        url: {
+          type: String,
+          required: true,
+        },
+        public_id: {
+          type: String,
+          required: true,
+        },
+        uploaded_at: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
+    // Percentage of playbook rules followed
+    checklist_score: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 0,
+    },
+
+    // 0 to 5 quality rating
+    quality_rating: {
+      type: Number,
+      min: 0,
+      max: 5,
+      default: 0,
     },
 
     created_at: {
@@ -134,6 +191,7 @@ const tradeSchema = new mongoose.Schema(
   }
 );
 
+// Calculate net P&L
 tradeSchema.pre("save", async function () {
   const entryFees = this.entry_fees || 0;
   const exitFees = this.exit_fees || 0;
