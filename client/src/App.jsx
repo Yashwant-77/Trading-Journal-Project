@@ -18,7 +18,7 @@ import CreatePlaybook from "./pages/CreatePlaybook";
 import Playbooks from "./pages/Playbooks";
 import { setPlaybooks } from "./store/playbooksSlice";
 import Calendar from "./pages/Calendar";
-
+import Settings from "./pages/Settings";
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const loading = useSelector((state) => state.auth.loading);
@@ -61,8 +61,8 @@ function App() {
           API.get("/playbooks"),
         ]);
 
-        console.log(tradesResponse.data);
-        console.log(playbooksResponse.data);
+        // console.log(tradesResponse.data);
+        // console.log(playbooksResponse.data);
 
         // 5. Store everything in Redux
         dispatch(setTrades(tradesResponse.data));
@@ -123,6 +123,12 @@ function App() {
             isAuthenticated ? <Calendar /> : <Navigate to="/login" replace />
           }
         />
+        <Route
+  path="/settings"
+  element={
+    isAuthenticated ? <Settings/> : <Navigate to='/login' replace />
+  }
+/>
       </Routes>
     </Router>
   );

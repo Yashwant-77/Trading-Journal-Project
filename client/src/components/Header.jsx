@@ -44,7 +44,7 @@ function Header({ onNewTradeClick }) {
     { label: "Trades",description: "View , Add , Edit , Delete Your Trades", href: "/view-trades" },
     { label: "Playbook", description: "Create , View , Edit , Delete your Playbooks", href: "/playbooks" },
     { label: "Calendar",description: "See your performance of perticular day", href: "/calendar" },
-    { label: "Setting",description: "Account settings ", href: "/setting" },
+    { label: "Settings",description: "Account settings ", href: "/settings" },
   ];
 
  
